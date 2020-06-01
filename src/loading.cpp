@@ -31,13 +31,48 @@ Loading::~Loading() {}
 void Loading::Init() {
 	std::cout << "Initializing Game" << std::endl;
 	this->model = std::make_unique<Model>(this->engine, this->model_file);
-	for (std::size_t i = 0; i < this->model->numMeshes(); ++i) {
-		auto& mesh = this->model->getMesh(i);
-		mesh.autoCreateShader();
-		std::cout << mesh.description() << std::endl;
-	}
-	this->model->Init();
+
+//	for (std::size_t i = 0; i < this->model->numMeshes(); ++i) {
+//		auto& mesh = this->model->getMesh(i);
+//		std::cout << mesh.description() << std::endl;
+//	}
 	std::cout << "start Rendering Game" << std::endl;
+
+    DirLight d;
+    d.ambient = glm::vec3(0.2, 0.0, 0.0);
+    d.diffuse = glm::vec3(0.0);
+    d.specular = glm::vec3(0.0);
+    d.direction = glm::vec3(10.0, 0, 0);
+    this->engine->getLightManager()->AddDirectionLight(d);
+
+    // Create a single point light
+    PointLight p;
+    p.position = glm::vec3(1.2f, 1.0f, 2.0f);
+    p.ambient = glm::vec3(0.1f);
+    p.diffuse = glm::vec3(0.8f);
+    p.specular = glm::vec3(1.0f);
+    p.constant = 1.0f;
+    p.linear = 0.09f;
+    p.quadratic = 0.032f;
+    this->engine->getLightManager()->AddPointLight(p);
+
+
+    FlashLight f;
+    f.position = glm::vec3(1.2f, 1.0f, 2.0f);
+    f.ambient = glm::vec3(0.8f/*0.1f*/);
+    f.diffuse = glm::vec3(0.9f);
+    f.specular = glm::vec3(1.0f);
+    f.constant = 1.0f;
+    f.linear = 0.09f;
+    f.quadratic = 0.032f;
+    f.position = this->camera.Position;
+    f.direction = this->camera.Front;
+    f.cutOff = glm::cos(glm::radians(12.5f));
+    f.outerCutOff = glm::cos(glm::radians(17.5));
+
+    this->engine->getLightManager()->AddSpotLight(f);
+
+    this->model->Init(this->engine);
 }
 
 void Loading::Update(const double& dt) noexcept {
@@ -48,7 +83,7 @@ void Loading::Update(const double& dt) noexcept {
     this->engine->get3DRenderer()->setCameraPosition(this->camera.Position);
 
 	// TODO: only when we move the camera.
-	model->UpdatePerspective(this->engine->get3DRenderer());
+	model->UpdatePerspective(this->engine);
 
     const float rotation_speed = 9.0;
     this->rotation += (dt * rotation_speed);
