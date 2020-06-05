@@ -61,6 +61,3 @@ target_link_libraries(nanosuit PUBLIC loading)
 
 add_executable(backpack samples/backpack.cpp)
 target_link_libraries(backpack PUBLIC loading)
-
-add_executable(audi samples/audi.cpp)
-target_link_libraries(audi PUBLIC loading)
